@@ -68,6 +68,19 @@ void ESP32AsyncStepper::begin() {
   _accelerationInStepsPerSecondPerSecond = 200;
 }
 
+void ESP32AsyncStepper::stopMotor() {
+  if (_motorStatus == STEPPER_MOTOR_STOPPED) return;
+  mcpwm_set_duty_in_us(_mcpwmUnit, _mcpwmTimer, MCPWM_OPR_A, 0);
+  mcpwm_set_signal_low(_mcpwmUnit, _mcpwmTimer, MCPWM_OPR_A);
+  _motorStatus = STEPPER_MOTOR_STOPPED;
+  delay(10);
+  _targetPositionInSteps = _currentPositionInSteps;
+}
+
+asyncStepperStatus_t ESP32AsyncStepper::getMotorStatus() {
+  return _motorStatus;
+}
+
 // // Set position of the motor, this does not move the motor
 // // Note: This function should only be called when the motor is stopped
 // //    Enter:  currentPositionInSteps = the new position of the motor in steps
@@ -101,6 +114,7 @@ void ESP32AsyncStepper::relativeMoveInSteps(long distanceToMoveInSteps) {
 
 void ESP32AsyncStepper::absoluteMoveInSteps(long absolutePositionToMoveToInSteps) {
   if (_motorStatus != STEPPER_MOTOR_STOPPED) return;
+  if (absolutePositionToMoveToInSteps == _currentPositionInSteps) return;
   // save the target location
   _targetPositionInSteps = absolutePositionToMoveToInSteps;
   xTaskCreate(taskProcessMovement, "processMovement", 4096, (void*)this, 2, NULL);
@@ -126,7 +140,8 @@ void ESP32AsyncStepper::runContinuous(bool run, bool direction) {
     }
   }
   else {
-    _motorStatus = STEPPER_MOTOR_STOPPING;
+    if (_motorStatus != STEPPER_MOTOR_STOPPED)
+      _motorStatus = STEPPER_MOTOR_STOPPING;
   }
 }
 

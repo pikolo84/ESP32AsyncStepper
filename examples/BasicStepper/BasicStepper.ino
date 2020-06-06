@@ -63,6 +63,10 @@ void loop() {
       Serial.println("toggle continuous movement");
       continuous = !continuous;
     }
+    if (command.charAt(0) == 'M') {
+      Serial.print("Motor Status: ");
+      Serial.println(stepper.getMotorStatus());
+    }
   }
   if (continuous && stepper.motionComplete()) {
     stepper.relativeMoveInSteps(3200);

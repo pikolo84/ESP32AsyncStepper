@@ -51,7 +51,9 @@ class ESP32AsyncStepper
   public:
     ESP32AsyncStepper(gpio_num_t stepPinNumber, gpio_num_t directionPinNumber, 
       mcpwm_unit_t mcpwmUnit = MCPWM_UNIT_0, mcpwm_io_signals_t mcpwmIoSignals = MCPWM0A, mcpwm_timer_t mcpwmTimer = MCPWM_TIMER_0);
-    void begin();  
+    void begin(); 
+    void stopMotor();
+    asyncStepperStatus_t getMotorStatus();
 
     //STEPS functions
     void SetPositionInSteps(long currentPositionInSteps);
