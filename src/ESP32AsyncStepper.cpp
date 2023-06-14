@@ -203,8 +203,9 @@ void ESP32AsyncStepper::taskProcessMovement (void *pvParameters) {
     if (currentSpeedRamp >= MCPWM_MIN_FREQUENCY) {
       args->_frequency = currentSpeedRamp;
       mcpwm_set_duty_in_us(args->_mcpwmUnit, args->_mcpwmTimer, MCPWM_OPR_A, MCPWM_DUTY_US);
+      mcpwm_set_frequency(args->_mcpwmUnit, args->_mcpwmTimer, args->_frequency);
     }
-    vTaskDelayUntil( &xLastWakeTime, xFrequency);
+    xTaskDelayUntil( &xLastWakeTime, xFrequency);
   }
   vTaskDelete(NULL);
 }
@@ -251,8 +252,9 @@ void ESP32AsyncStepper::taskProcessContinuousMovement (void *pvParameters) {
     if (currentSpeedRamp >= MCPWM_MIN_FREQUENCY) {
       args->_frequency = currentSpeedRamp;
       mcpwm_set_duty_in_us(args->_mcpwmUnit, args->_mcpwmTimer, MCPWM_OPR_A, MCPWM_DUTY_US);
+      mcpwm_set_frequency(args->_mcpwmUnit, args->_mcpwmTimer, args->_frequency);
     }
-    vTaskDelayUntil( &xLastWakeTime, xFrequency);
+    xTaskDelayUntil( &xLastWakeTime, xFrequency);
   }
   vTaskDelete(NULL);
 }
@@ -271,7 +273,6 @@ void IRAM_ATTR ESP32AsyncStepper::isr_handler (void *arg) {
   else {
     if (args->_currentPositionInSteps == args->_decelerationDistanceInSteps)
       args->_motorStatus = STEPPER_MOTOR_DECELERATING;
-    mcpwm_set_frequency(args->_mcpwmUnit, args->_mcpwmTimer, args->_frequency);
   }
 }
 
